@@ -1,2 +1,3 @@
 # rans-tricks
-rans optimized tricks
+This repo contains a few branchless modifications to a traditional rans coder, as a result it's performance is within a few percent of FSE whilst supporting adaptive probabilities and using no platform specific intrinsics.
+All of this is public domain, do whatever you want with it.
