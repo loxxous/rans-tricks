@@ -7,5 +7,7 @@ A small benchmark on enwik8, Ryzen 1700 @ 3.7ghz:
 Implementation         | Encode speed | Decode speed|
 -----------------------|--------------|-------------|
 4-way interleaved rans | 340 MB/s     | 460 MB/s    |
-4-way implicit    rans | 270 MB/s     | 400 MB/s    |
+4-way implicit rans    | 270 MB/s     | 400 MB/s    |
+4-way interleaved rans Ryg | 250 MB/s     | 300 MB/s    |
+4-way implicit rans Ryg| 225 MB/s     | 250 MB/s    |
 FSE                    | 325 MB/s     | 440 MB/s    |
