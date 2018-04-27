@@ -59,7 +59,7 @@ struct SymbolStats
 void SymbolStats::count_freqs(uint8_t const* in, size_t nbytes)
 {
     for (int i=0; i < 256; i++)
-        freqs[i] = 0;
+        freqs[i] = 1;
 
     for (size_t i=0; i < nbytes; i++)
         freqs[in[i]]++;
