@@ -140,12 +140,11 @@ static inline void RansDecAdvance(RansState* r, uint8_t** pptr, uint32_t start, 
     	x = freq * (x >> scale_bits) + (x & mask) - start;
 
 	// True branchless renormalization
-	uint8_t *ptr = *pptr;
+    	uint32_t x = *r;
 	int32_t s = x < RANS_BYTE_L;
 	uint32_t tx = x;
-	tx = (tx << 16) | *((uint16_t*)ptr); 
-	ptr += s << 1;
-	*pptr = ptr;
+	tx = (tx << 16) | *((uint16_t*)*pptr); 
+	*pptr += s << 1;
 	x = (-s & (tx - x)) + x;
 	*r = x;
 }
@@ -309,12 +308,10 @@ static inline void RansDecRenorm(RansState* r, uint8_t** pptr)
 {
     	// True branchless renormalization
     	uint32_t x = *r;
-	uint8_t *ptr = *pptr;
 	int32_t s = x < RANS_BYTE_L;
 	uint32_t tx = x;
-	tx = (tx << 16) | *((uint16_t*)ptr); 
-	ptr += s << 1;
-	*pptr = ptr;
+	tx = (tx << 16) | *((uint16_t*)*pptr); 
+	*pptr += s << 1;
 	x = (-s & (tx - x)) + x;
     	*r = x;
 }
