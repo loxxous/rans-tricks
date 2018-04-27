@@ -65,24 +65,13 @@ static inline RansState RansEncRenorm(RansState x, uint8_t** pptr, uint32_t freq
 	uint8_t *ptr = *pptr;
 	uint32_t x_max = ((RANS_BYTE_L >> scale_bits) << 16) * freq;
 	if (x >= x_max){
-        ptr -= 2;
-        *((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
-        x >>= 16;
-    }
+        	ptr -= 2;
+       	 	*((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
+       	 	x >>= 16;
+    	}
 	*pptr = ptr;
 	return x;
-	/*
-    uint32_t x_max = ((RANS_BYTE_L >> scale_bits) << 8) * freq; // this turns into a shift.
-    if (x >= x_max) {
-        uint8_t* ptr = *pptr;
-        do {
-            *--ptr = (uint8_t) (x & 0xff);
-            x >>= 8;
-        } while (x >= x_max);
-        *pptr = ptr;
-    }
-    return x;
-	*/
+
 }
 
 // Encodes a single symbol with range start "start" and frequency "freq".
@@ -144,13 +133,13 @@ static inline uint32_t RansDecGet(RansState* r, uint32_t scale_bits)
 // and the resulting bytes get written to ptr (which is updated).
 static inline void RansDecAdvance(RansState* r, uint8_t** pptr, uint32_t start, uint32_t freq, uint32_t scale_bits)
 {
-    uint32_t mask = (1u << scale_bits) - 1;
+    	uint32_t mask = (1u << scale_bits) - 1;
 
-    // s, x = D(x)
-    uint32_t x = *r;
-    x = freq * (x >> scale_bits) + (x & mask) - start;
+    	// s, x = D(x)
+    	uint32_t x = *r;
+    	x = freq * (x >> scale_bits) + (x & mask) - start;
 
-	// True branchless renormalization -> 460MB/s
+	// True branchless renormalization
 	uint8_t *ptr = *pptr;
 	int32_t s = x < RANS_BYTE_L;
 	uint32_t tx = x;
@@ -158,31 +147,7 @@ static inline void RansDecAdvance(RansState* r, uint8_t** pptr, uint32_t start, 
 	ptr += s << 1;
 	*pptr = ptr;
 	x = (-s & (tx - x)) + x;
-	
-	/*
-	// branchless renormalization -> 450MB/s
-	uint8_t *ptr = *pptr;
-	int32_t s = x < RANS_BYTE_L;
-	uint32_t tx = x;
-	do 
-	{
-		tx = (tx << 8) | *ptr; 
-		ptr += s;
-	}
-	while(tx < RANS_BYTE_L);
-	*pptr = ptr;
-	x = (-s & (tx - x)) + x;
-	*/
-	/*
-    // standard renormalization -> 300MB/s
-    if (x < RANS_BYTE_L) {
-        uint8_t* ptr = *pptr;
-        do x = (x << 8) | *ptr++; while (x < RANS_BYTE_L);
-        *pptr = ptr;
-    }
-	*/
-
-    *r = x;
+	*r = x;
 }
 
 // --------------------------------------------------------------------------
@@ -301,24 +266,11 @@ static inline void RansEncPutSymbol(RansState* r, uint8_t** pptr, RansEncSymbol 
 	uint8_t *ptr = *pptr;
 	uint32_t x_max = sym->x_max;
 	if (x >= x_max){
-        ptr -= 2;
-        *((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
-        x >>= 16;
-    }
+        	ptr -= 2;
+        	*((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
+       		x >>= 16;
+    	}
 	*pptr = ptr;
-	
-	/*
-    uint32_t x = *r;
-    uint32_t x_max = sym->x_max;
-    if (x >= x_max) {
-        uint8_t* ptr = *pptr;
-        do {
-            *--ptr = (uint8_t) (x & 0xff);
-            x >>= 8;
-        } while (x >= x_max);
-        *pptr = ptr;
-    }
-	*/
 
     // x = C(s,x)
     // NOTE: written this way so we get a 32-bit "multiply high" when
@@ -355,8 +307,8 @@ static inline void RansDecAdvanceSymbolStep(RansState* r, RansDecSymbol const* s
 // Renormalize.
 static inline void RansDecRenorm(RansState* r, uint8_t** pptr)
 {
-    // True branchless renormalization -> 460MB/s
-    uint32_t x = *r;
+    	// True branchless renormalization
+    	uint32_t x = *r;
 	uint8_t *ptr = *pptr;
 	int32_t s = x < RANS_BYTE_L;
 	uint32_t tx = x;
@@ -364,29 +316,7 @@ static inline void RansDecRenorm(RansState* r, uint8_t** pptr)
 	ptr += s << 1;
 	*pptr = ptr;
 	x = (-s & (tx - x)) + x;
-	/*
-	// Branchless rans renormalization, this is faster on average (by 12% to 20%)
-	uint8_t *ptr = *pptr;
-	int32_t s = x < RANS_BYTE_L;
-	uint32_t tx = x;
-	do 
-	{
-		tx = (tx << 8) | *ptr; 
-		ptr += s;
-	}
-	while(tx < RANS_BYTE_L);
-	*pptr = ptr;
-	x = (-s & (tx - x)) + x;
-	*/
-	/*
-    if (x < RANS_BYTE_L) {
-        uint8_t* ptr = *pptr;
-        do x = (x << 8) | *ptr++; while (x < RANS_BYTE_L);
-        *pptr = ptr;
-    }
-	*/
-
-    *r = x;
+    	*r = x;
 }
 
 #endif // RANS_BYTE_HEADER
