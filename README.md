@@ -3,6 +3,7 @@ This repo contains a few branchless modifications to a traditional rans coder, a
 All of this is public domain, do whatever you want with it.
 
 A small benchmark on enwik8, Ryzen 1700 @ 3.7ghz:
+
 Implementation         | Encode speed | Decode speed|
 -----------------------|--------------|-------------|
 4-way interleaved rans | 340 MB/s     | 460 MB/s    |
