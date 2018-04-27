@@ -62,16 +62,14 @@ static inline void RansEncInit(RansState* r)
 // Renormalize the encoder. Internal function.
 static inline RansState RansEncRenorm(RansState x, uint8_t** pptr, uint32_t freq, uint32_t scale_bits)
 {
-	uint8_t *ptr = *pptr;
 	uint32_t x_max = ((RANS_BYTE_L >> scale_bits) << 16) * freq;
-	if (x >= x_max){
-        	ptr -= 2;
-       	 	*((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
-       	 	x >>= 16;
-    	}
-	*pptr = ptr;
+	int32_t s = x >= x_max;
+	uint32_t tx = x;
+	uint8_t *ptr = *pptr - 2;
+	*((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
+	*pptr -= s << 1;
+	x = (-s & ((x >> 16) - x)) + x;
 	return x;
-
 }
 
 // Encodes a single symbol with range start "start" and frequency "freq".
@@ -261,14 +259,13 @@ static inline void RansEncPutSymbol(RansState* r, uint8_t** pptr, RansEncSymbol 
 
     // renormalize
 	uint32_t x = *r;
-	uint8_t *ptr = *pptr;
 	uint32_t x_max = sym->x_max;
-	if (x >= x_max){
-        	ptr -= 2;
-        	*((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
-       		x >>= 16;
-    	}
-	*pptr = ptr;
+	int32_t s = x >= x_max;
+	uint32_t tx = x;
+	uint8_t *ptr = *pptr - 2;
+	*((uint16_t*)ptr) = (uint16_t) (x & 0xffff);
+	*pptr -= s << 1;
+	x = (-s & ((x >> 16) - x)) + x;
 
     // x = C(s,x)
     // NOTE: written this way so we get a 32-bit "multiply high" when
